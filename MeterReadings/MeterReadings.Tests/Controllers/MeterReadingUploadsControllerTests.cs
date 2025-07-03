@@ -233,5 +233,73 @@ namespace MeterReadings.Tests.Controllers
                 Assert.That(context.MeterReadings.Count(), Is.EqualTo(2), "Should have both readings");
             });
         }
+
+        [Test]
+        public async Task UploadMeterReadings_MeterReading1Csv_CorrectSuccessAndFailedCounts()
+        {
+            var context = GetDbContext();
+            var controller = new MeterReadingUploadsController(context);
+            var validAccountIds = new[]// Add all valid account IDs from Test_Accounts 1.csv
+            {
+                1234,1239,1240,1241,1242,1243,1244,1245,1246,1247,1248,
+                2233,2344,2345,2346,2347,2348,2349,2350,2351,2352,2353,
+                2355,2356,4534,6776,8766
+            };
+            foreach (var id in validAccountIds)
+            {
+                if (!context.Accounts.Any(a => a.AccountId == id))
+                    context.Accounts.Add(new Account { AccountId = id });
+            }
+            context.SaveChanges();
+            var csv = File.ReadAllText("Resources/Meter_Reading 1.csv");
+            var file = CreateTestFile(csv);
+
+            var result = await controller.UploadMeterReadings(file);
+
+            var okResult = result as OkObjectResult;
+            var resultDto = okResult?.Value as MeterReadingUploadResultDto;
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultDto, Is.Not.Null);
+                Assert.That(resultDto?.Success, Is.EqualTo(4), "Success count should be 4");
+                Assert.That(resultDto?.Failed, Is.EqualTo(31), "Failed count should be 31");
+            });
+        }
+
+        [Test]
+        public async Task UploadMeterReadings_MeterReading1Csv_Twice_SecondAllFailed()
+        {
+            var context = GetDbContext();
+            var controller = new MeterReadingUploadsController(context);
+            var validAccountIds = new[]// Add all valid account IDs from Test_Accounts 1.csv
+            {
+                1234,1239,1240,1241,1242,1243,1244,1245,1246,1247,1248,
+                2233,2344,2345,2346,2347,2348,2349,2350,2351,2352,2353,
+                2355,2356,4534,6776,8766
+            };
+            foreach (var id in validAccountIds)
+            {
+                if (!context.Accounts.Any(a => a.AccountId == id))
+                    context.Accounts.Add(new Account { AccountId = id });
+            }
+            context.SaveChanges();
+            var csv = File.ReadAllText("Resources/Meter_Reading 1.csv");
+            var file1 = CreateTestFile(csv);
+            var file2 = CreateTestFile(csv);
+
+            // First upload
+            await controller.UploadMeterReadings(file1);
+            // Second upload
+            var result2 = await controller.UploadMeterReadings(file2);
+
+            var okResult2 = result2 as OkObjectResult;
+            var resultDto2 = okResult2?.Value as MeterReadingUploadResultDto;
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultDto2, Is.Not.Null);
+                Assert.That(resultDto2?.Success, Is.EqualTo(0), "Second upload: Success count should be 0");
+                Assert.That(resultDto2?.Failed, Is.EqualTo(35), "Second upload: Failed count should be 35");
+            });
+        }
     }
 }
