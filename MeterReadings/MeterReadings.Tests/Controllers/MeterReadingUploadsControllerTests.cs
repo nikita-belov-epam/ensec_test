@@ -175,5 +175,63 @@ namespace MeterReadings.Tests.Controllers
 
             Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
         }
+
+        [Test]
+        public async Task UploadMeterReadings_OlderThanLatestExistingRead_Fails()
+        {
+            var context = GetDbContext();
+            context.MeterReadings.Add(new MeterReading
+            {
+                AccountId = 1234,
+                MeterReadingDateTime = new DateTime(2020, 1, 1, 10, 0, 0),
+                MeterReadValue = 54321,
+                CreatedAt = DateTime.UtcNow
+            });
+            context.SaveChanges();
+            var controller = new MeterReadingUploadsController(context);
+            var csv = "AccountId,MeterReadingDateTime,MeterReadValue\n1234,01/01/2019 09:24,12345";
+            var file = CreateTestFile(csv);
+
+            var result = await controller.UploadMeterReadings(file);
+
+            var okResult = result as OkObjectResult;
+            var resultDto = okResult?.Value as MeterReadingUploadResultDto;
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultDto, Is.Not.Null);
+                Assert.That(resultDto?.Success, Is.EqualTo(0));
+                Assert.That(resultDto?.Failed, Is.EqualTo(1));
+                Assert.That(context.MeterReadings.Count(), Is.EqualTo(1), "Should still have only the original reading");
+            });
+        }
+
+        [Test]
+        public async Task UploadMeterReadings_NewerThanLatestExistingRead_Succeeds()
+        {
+            var context = GetDbContext();
+            context.MeterReadings.Add(new MeterReading
+            {
+                AccountId = 1234,
+                MeterReadingDateTime = new DateTime(2019, 1, 1, 9, 24, 0),
+                MeterReadValue = 11111,
+                CreatedAt = DateTime.UtcNow
+            });
+            context.SaveChanges();
+            var controller = new MeterReadingUploadsController(context);
+            var csv = "AccountId,MeterReadingDateTime,MeterReadValue\n1234,01/01/2020 10:00,22222";
+            var file = CreateTestFile(csv);
+
+            var result = await controller.UploadMeterReadings(file);
+
+            var okResult = result as OkObjectResult;
+            var resultDto = okResult?.Value as MeterReadingUploadResultDto;
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultDto, Is.Not.Null);
+                Assert.That(resultDto?.Success, Is.EqualTo(1));
+                Assert.That(resultDto?.Failed, Is.EqualTo(0));
+                Assert.That(context.MeterReadings.Count(), Is.EqualTo(2), "Should have both readings");
+            });
+        }
     }
 }

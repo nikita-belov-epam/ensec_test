@@ -92,6 +92,24 @@ namespace MeterReadings.Controllers
                         continue;
                     }
 
+                    // Ensure the new read isn’t older than the latest existing read for the account
+                    var latestExistingRead = _context.MeterReadings
+                        .Where(r => r.AccountId == accountId)
+                        .OrderByDescending(r => r.MeterReadingDateTime)
+                        .FirstOrDefault();
+
+                    if (latestExistingRead != null && readingDateTime < latestExistingRead.MeterReadingDateTime)
+                    {
+                        failureCount++;
+                        continue;
+                    }
+                    if (existingReadings.Contains(readingKey) ||
+                        newReadings.Any(r => r.AccountId == accountId && r.MeterReadingDateTime == readingDateTime))
+                    {
+                        failureCount++;
+                        continue;
+                    }
+
                     // All validations passed
                     newReadings.Add(new MeterReading
                     {
