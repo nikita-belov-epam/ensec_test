@@ -1,0 +1,11 @@
+@MeterReadings_HostAddress = http://localhost:5075
+
+POST {{MeterReadings_HostAddress}}/meter-reading-uploads
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="Meter_Reading 1.csv"
+Content-Type: text/csv
+
+< ./Resources/Meter_Reading 1.csv
+--boundary--
