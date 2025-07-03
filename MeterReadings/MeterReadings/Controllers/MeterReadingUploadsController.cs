@@ -1,4 +1,5 @@
 ﻿using MeterReadings.DataBase;
+using MeterReadings.Entities.DTOs;
 using MeterReadings.Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -109,7 +110,7 @@ namespace MeterReadings.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return Ok(new { Success = successCount, Failed = failureCount });
+            return Ok(new MeterReadingUploadResultDto { Success = successCount, Failed = failureCount });
         }
     }
 }

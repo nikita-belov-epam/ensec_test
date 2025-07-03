@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35818.85 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterReadings", "MeterReadings\MeterReadings.csproj", "{746BE281-B3EB-4F77-ABAA-7C81332C44E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterReadings.Tests", "MeterReadings.Tests\MeterReadings.Tests.csproj", "{5EDC3684-950F-4501-B82A-BA127CD91133}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{746BE281-B3EB-4F77-ABAA-7C81332C44E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{746BE281-B3EB-4F77-ABAA-7C81332C44E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{746BE281-B3EB-4F77-ABAA-7C81332C44E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EDC3684-950F-4501-B82A-BA127CD91133}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EDC3684-950F-4501-B82A-BA127CD91133}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EDC3684-950F-4501-B82A-BA127CD91133}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EDC3684-950F-4501-B82A-BA127CD91133}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
